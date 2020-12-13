@@ -1,0 +1,64 @@
+@inject NavigationManager NavigationManager
+
+<section class="py-1 mb-4 text-center container">
+    <div class="row py-lg-5">
+      <div class="col-lg-6 col-md-8 mx-auto shadow-lg p-3 rounded bg-light">
+        <h1 class="fw-light">@productNo</h1>
+        <p class="lead text-muted">@description</p>
+        <p>
+          <a href="/shop" class="btn btn-outline-success my-2">Add to 🛒</a>
+          <a href="/shop" class="btn btn-outline-secondary my-2">Go back</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="album py-3 mb-5 bg-light shadow-lg rounded">
+    <div class="container">
+
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 mb-2">
+        <div class="col">
+          <div class="card shadow-sm">
+            <div class="card-header bg-white text-center">
+              <img class="card-img" src="@imageURL" alt="@productNo">
+            </div>
+            
+
+            <div class="card-body">
+              <p class="card-text text-muted">@description</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <button type="button" class="btn btn-sm btn-outline-secondary">❤</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary">👎</button>
+                </div>
+                <small class="text-muted">LBP @price</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+
+@code {
+  [Parameter]
+  public string productId { get; set; }
+
+  [Parameter]
+  public string productNo { get; set; }
+
+  [Parameter]
+  public string description { get; set; }
+
+  [Parameter]
+  public string imageURL { get; set; }
+
+  [Parameter]
+  public string price { get; set; }
+
+  [Parameter]
+  public string productLink { get; set; }
+
+}
