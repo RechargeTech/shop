@@ -1,0 +1,53 @@
+@page "/product/{productNo}/{variantNo}"
+@inject HttpClient Http
+@inject Services.CompanyFilter CompanyFilter
+@using Microsoft.AspNetCore.Components.Web.Extensions.Head
+
+
+
+    
+
+@if (product == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    
+    <div>
+        <ProductCard productNo="@product.ProductNo" description="@product.Description" imageURL="@image.ImageURL" price="@price.Price.ToString()"/>
+    </div>
+}
+
+
+
+@code {
+    [Parameter] public string productNo { get; set; }
+    [Parameter] public string variantNo { get; set; }
+    private Product[] products;
+    private Product product;
+    private ProductPrice[] prices { get; set; }
+    private ProductPrice price { get; set; }
+    private Variant[] variants { get; set; }
+    private Variant variant { get; set; }
+    private VariantImage[] images { get; set; }
+    private VariantImage image { get; set; }
+    private string companyId {get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        companyId = CompanyFilter.CompanyId;
+        products = await Http.GetFromJsonAsync<Product[]>($"api/product?companyId={companyId}");
+        prices = await Http.GetFromJsonAsync<ProductPrice[]>($"api/productprice?companyId={companyId}");
+        variants = await Http.GetFromJsonAsync<Variant[]>($"api/variant?companyId={companyId}");
+        images = await Http.GetFromJsonAsync<VariantImage[]>($"api/variantimage?companyId={companyId}");
+        
+        
+        product = products.FirstOrDefault(u => u.ProductNo == productNo);
+        variant = variants.FirstOrDefault(v => v.ProductId == product.ProductId && v.VariantNo == variantNo);
+        price = prices.LastOrDefault(p => p.VariantId == variant.VariantId);
+        image = images.LastOrDefault(p => p.VariantId == variant.VariantId);
+        
+    }
+}

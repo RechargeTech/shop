@@ -1,0 +1,78 @@
+@page "/shop"
+@inject HttpClient Http
+@inject Services.CompanyFilter CompanyFilter
+@inject NavigationManager NavigationManager
+
+
+
+
+@if (variants == null || products == null || prices == null || images == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="container">
+        <div class="row">
+          @foreach (var variant in variants) {
+              var price = GetVariantPrice(variant.VariantId);
+              var url = GetImageURL(variant.VariantId);
+              var color = GetImageColor(variant.VariantId);
+              var link = GetProductLink(variant.Product.ProductNo, variant.VariantNo);
+              string message =  GetOrderMessage(variant.Product.ProductNo, variant.VariantNo);
+              @if(price != null && color != null && url != null) {
+                  <VariantCard name="@variant.Product.ProductNo" description="@variant.Product.Description" price="@price" url="@url" color="@color" orderMessage="@message" productLink="@link"/>
+              }
+
+          }
+        </div>
+    </div>
+}
+
+
+
+
+
+
+@code {
+    private Product[] products;
+    private ProductPrice[] prices { get; set; }
+    private Variant[] variants { get; set; }
+    private VariantImage[] images { get; set; }
+
+    
+    private string companyId { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        companyId = CompanyFilter.CompanyId;
+        products = await Http.GetFromJsonAsync<Product[]>($"api/product?companyId={companyId}&isActive={true}");
+        prices = await Http.GetFromJsonAsync<ProductPrice[]>($"api/productprice?companyId={companyId}&productIsActive={true}");
+        variants = await Http.GetFromJsonAsync<Variant[]>($"api/variant?companyId={companyId}&productIsActive={true}");
+        images = await Http.GetFromJsonAsync<VariantImage[]>($"api/variantimage?companyId={companyId}&productIsActive={true}");  
+
+    }
+
+    private string GetVariantPrice(string variantId) {
+        return prices.OrderBy(p => p.CreatedOn).LastOrDefault(p => p.VariantId == variantId).Price.ToString();
+    }
+
+    private string GetImageURL(string variantId) {
+        return images.OrderBy(p => p.CreatedOn).LastOrDefault(p => p.VariantId == variantId).ImageURL;
+    }
+
+    private string[] GetImageColor(string variantId) {
+        return images.OrderBy(p => p.CreatedOn).Where(p => p.VariantId == variantId).Select(p => p.Color).ToArray();
+    }
+
+    private string GetOrderMessage(string productNo, string variantNo) {
+        string baseURL = NavigationManager.BaseUri;
+        return "https://api.whatsapp.com/send?phone=96170966980&text=" + baseURL + "product/" + productNo + "/" + variantNo + " ";
+    }
+
+    private string GetProductLink(string productNo, string variantNo) {
+        return $"/product/{productNo}/{variantNo}";
+    }
+
+}
